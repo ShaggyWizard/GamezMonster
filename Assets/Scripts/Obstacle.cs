@@ -12,14 +12,16 @@ public class Obstacle : MonoBehaviour, IPooledObject, ITrajectory, ISize
     [SerializeField] private BoxCollider2D _collider;
 
 
-    private float _deathTime;
-
-
-    public Vector3 Position { get { return transform.position; } set { transform.position = value; } }
-    public Quaternion Rotation { get { return transform.rotation; } set { transform.rotation = value; } }
-    public Vector3 Velocity { get; set; }
+    public Vector3 Position => transform.position;
+    public Quaternion Rotation => transform.rotation;
+    public Vector3 Velocity => _direction * _speed;
 
     public event Action<IPooledObject> OnRelease;
+
+
+    private float _deathTime;
+    private float _speed;
+    private Vector3 _direction;
 
 
     private void Update()
@@ -54,5 +56,21 @@ public class Obstacle : MonoBehaviour, IPooledObject, ITrajectory, ISize
     {
         _collider.size = newSize;
         _spriteRenderer.size = newSize;
+    }
+    public void SetPosition(Vector3 newPosition)
+    {
+        transform.position = newPosition;
+    }
+    public void SetRotation(Quaternion newRotation)
+    {
+        transform.rotation = newRotation;
+    }
+    public void SetDirection(Vector3 newDirection)
+    {
+        _direction = newDirection;
+    }
+    public void SetSpeed(float newSpeed)
+    {
+        _speed = newSpeed;
     }
 }

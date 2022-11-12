@@ -13,12 +13,16 @@ public class ObstacleSpawner : MonoBehaviour
 
     [Header("Dependencies")]
     [SerializeField] private GameData _gameData;
+    [SerializeField] private GameSettings _gameSettings;
     [SerializeField] private GameObject _pooledObjectPrefab;
     [SerializeField] private BoxCollider2D _bounds;
 
 
     private IPooledObject _pooledObject;
     private IObjectPool<IPooledObject> _pool;
+
+    private float _distance;
+    private float _lastDistance;
 
     private const int _gizmoSize = 2;
     private const int _defaultWidth = 1;
@@ -28,6 +32,8 @@ public class ObstacleSpawner : MonoBehaviour
 
     private void Awake()
     {
+        _distance = 0;
+        _lastDistance = 0;
         _pool = new ObjectPool<IPooledObject>(CreatePooledObject, OnGetPooledObject, OnReleasePooledObject, OnDestroyPooledObject);
 
         if (!SetObstacle(_pooledObjectPrefab)) { Destroy(this); }
@@ -43,16 +49,17 @@ public class ObstacleSpawner : MonoBehaviour
         }
         Handles.ArrowHandleCap(0, arrowPos, Quaternion.LookRotation(Vector3.left), _gizmoSize, EventType.Repaint);
     }
-    private void Update()
+    private void FixedUpdate()
     {
-        Spawn();
+        _distance += _gameData.Speed * Time.fixedDeltaTime;
+        if (_distance >= _lastDistance + _gameSettings.spacing) 
+        {
+            _lastDistance += _gameSettings.spacing;
+            _pool.Get();
+        }
     }
 
 
-    public void Spawn()
-    {
-        _pool.Get();
-    }
     public bool SetObstacle(GameObject newObstacle)
     {
         bool valid = true;
@@ -84,6 +91,12 @@ public class ObstacleSpawner : MonoBehaviour
     {
         var obj = _pooledObject.Instantiate(transform);
         obj.OnRelease += (s) => _pool.Release(s);
+
+        var trajectory = obj as ITrajectory;
+        trajectory.SetSpeed(_gameData.Speed);
+
+        _gameData.OnSpeedChange += trajectory.SetSpeed;
+
         return obj;
     }
     private void OnGetPooledObject(IPooledObject obj)
@@ -91,19 +104,21 @@ public class ObstacleSpawner : MonoBehaviour
         float right = _bounds.offset.x + _bounds.size.x * _half;
         float top = _bounds.offset.y + _bounds.size.y * _half;
         float bottom = _bounds.offset.y - _bounds.size.y * _half;
-        float spawnHeight = Random.Range(top, bottom);
+        float spawnHeight = Mathf.CeilToInt(Random.Range(top, bottom));
+
         Vector2 localPos = new Vector2(right, spawnHeight);
 
         var trajectory = obj as ITrajectory;
-        trajectory.Position = transform.position + transform.rotation * localPos;
-        trajectory.Rotation = transform.rotation;
-        trajectory.Velocity = Vector2.left * 10;
+        trajectory.SetPosition(transform.position + transform.rotation * localPos);
+        trajectory.SetRotation(transform.rotation);
+        trajectory.SetDirection(Vector2.left);
 
         var size = obj as ISize;
         if (size != null)
         {
             size.SetSize(new Vector2(_defaultWidth, Random.Range(_minHeight, _maxHeight)));
         }
+
         obj.OnPoolGet(_bounds.size.x / trajectory.Velocity.magnitude);
     }
     private void OnReleasePooledObject(IPooledObject obj)
@@ -112,6 +127,11 @@ public class ObstacleSpawner : MonoBehaviour
     }
     private void OnDestroyPooledObject(IPooledObject obj)
     {
+        var trajectory = obj as ITrajectory;
+        trajectory.SetSpeed(_gameData.Speed);
+
+        _gameData.OnSpeedChange -= trajectory.SetSpeed;
+
         obj.OnPoolDestroy();
     }
 }

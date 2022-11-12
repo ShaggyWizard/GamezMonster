@@ -235,9 +235,13 @@ PrefabInstance:
       value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 8518246227745346250, guid: 70c17984e65bc6749a47bdf15e9c4fb1, type: 3}
+      propertyPath: _gameSettings
+      value: 
+      objectReference: {fileID: 11400000, guid: db77425a8c7e4ff44a57442842d00c0a, type: 2}
+    - target: {fileID: 8518246227745346250, guid: 70c17984e65bc6749a47bdf15e9c4fb1, type: 3}
       propertyPath: _pooledObjectPrefab
       value: 
-      objectReference: {fileID: 8518246227745346245, guid: 70c17984e65bc6749a47bdf15e9c4fb1, type: 3}
+      objectReference: {fileID: 4346607167949605126, guid: 8dec6bb5ee109b44fb9d5aa9764ddbea, type: 3}
     - target: {fileID: 8518246227745346251, guid: 70c17984e65bc6749a47bdf15e9c4fb1, type: 3}
       propertyPath: m_RootOrder
       value: 1

@@ -7,6 +7,7 @@ public class StartMenuScript : MonoBehaviour
 {
     [SerializeField] private UIDocument _ui;
     [SerializeField] private GameData _gameData;
+    [SerializeField] private GameSettings _gameSettings;
     [SerializeField] private string _sceneName;
 
 
@@ -17,7 +18,7 @@ public class StartMenuScript : MonoBehaviour
 
         var difficultyRadioGroup = _ui.rootVisualElement.Q<RadioButtonGroup>("DifficultyRadio");
         difficultyRadioGroup.RegisterValueChangedCallback(ChangeDifficulty);
-        _gameData.difficulty = difficultyRadioGroup.value;
+        SetSpeed(difficultyRadioGroup.value);
     }
 
 
@@ -27,6 +28,10 @@ public class StartMenuScript : MonoBehaviour
     }
     private void ChangeDifficulty(ChangeEvent<int> evt)
     {
-        _gameData.difficulty = evt.newValue;
+        SetSpeed(evt.newValue);
+    }
+    private void SetSpeed(int difficulty)
+    {
+        _gameData.Speed = _gameSettings.difficulties[difficulty];
     }
 }
