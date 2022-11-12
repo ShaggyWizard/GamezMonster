@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 
 
+[RequireComponent(typeof(Rigidbody2D))]
 public class Player : MonoBehaviour, ITrajectory, IPlayer, IDeath
 {
     public Vector3 Position => transform.position;
@@ -12,17 +13,16 @@ public class Player : MonoBehaviour, ITrajectory, IPlayer, IDeath
 
     private float _speed;
     private bool _up = false;
-
-
+    private Rigidbody2D _rigidbody;
+    private void Awake()
+    {
+        _rigidbody = GetComponent<Rigidbody2D>();
+    }
     private void Update()
     {
         _up = Input.GetAxisRaw("Vertical") > 0f;
+        _rigidbody.velocity = Velocity;
     }
-    private void FixedUpdate()
-    {
-        transform.position += Velocity * Time.fixedDeltaTime;
-    }
-
 
     public void OnHit()
     {

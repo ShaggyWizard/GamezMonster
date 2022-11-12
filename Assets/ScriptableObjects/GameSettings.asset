@@ -13,7 +13,11 @@ MonoBehaviour:
   m_Name: GameSettings
   m_EditorClassIdentifier: 
   spacing: 5
-  difficulties: 050000000a0000000f000000
-  speedChangeRate: 5
-  playerStartSpeed: 1
-  speedChangeAmount: 0.5
+  difficulty: 0
+  difficulties:
+  - 4
+  - 8
+  - 12
+  speedChangeRate: 15
+  playerStartSpeed: 5
+  speedChangeAmount: 2

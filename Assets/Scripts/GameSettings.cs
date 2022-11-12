@@ -7,7 +7,6 @@ using UnityEngine;
 public class GameSettings : ScriptableObject
 {
     public float spacing;
-    public int difficulty;
     public List<float> difficulties;
     public float speedChangeRate;
     public float playerStartSpeed;

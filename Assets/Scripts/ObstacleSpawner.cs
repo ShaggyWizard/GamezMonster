@@ -39,6 +39,7 @@ public class ObstacleSpawner : MonoBehaviour
 
         if (!SetObstacle(_pooledObjectPrefab)) { Destroy(this); }
     }
+#if UNITY_EDITOR
     private void OnDrawGizmosSelected()
     {
         Handles.matrix = transform.localToWorldMatrix;
@@ -50,6 +51,7 @@ public class ObstacleSpawner : MonoBehaviour
         }
         Handles.ArrowHandleCap(0, arrowPos, Quaternion.LookRotation(Vector3.left), _gizmoSize, EventType.Repaint);
     }
+#endif
     private void Update()
     {
         _distance += _gameData.Speed * Time.deltaTime;
