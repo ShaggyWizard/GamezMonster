@@ -15,24 +15,25 @@ public class ObstacleSpawner : MonoBehaviour
     [SerializeField] private GameData _gameData;
     [SerializeField] private GameSettings _gameSettings;
     [SerializeField] private GameObject _pooledObjectPrefab;
-    [SerializeField] private BoxCollider2D _bounds;
 
 
+    private BoxCollider2D _bounds;
     private IPooledObject _pooledObject;
     private IObjectPool<IPooledObject> _pool;
 
     private float _distance;
     private float _lastDistance;
+    private float _offset;
 
     private const int _gizmoSize = 2;
     private const int _defaultWidth = 1;
     private const int _minHeight = 1;
-    private const float _half = 0.5f;
 
 
     private void Awake()
     {
-        _distance = 0;
+        _bounds = GetComponent<BoxCollider2D>();
+           _distance = 0;
         _lastDistance = 0;
         _pool = new ObjectPool<IPooledObject>(CreatePooledObject, OnGetPooledObject, OnReleasePooledObject, OnDestroyPooledObject);
 
@@ -45,16 +46,17 @@ public class ObstacleSpawner : MonoBehaviour
         Vector3 arrowPos = Vector3.zero;
         if (_bounds != null)
         {
-            arrowPos = _bounds.offset + Vector2.right * _bounds.size.x * _half;
+            arrowPos = _bounds.offset + Vector2.right * _bounds.size.x * 0.5f;
         }
         Handles.ArrowHandleCap(0, arrowPos, Quaternion.LookRotation(Vector3.left), _gizmoSize, EventType.Repaint);
     }
-    private void FixedUpdate()
+    private void Update()
     {
-        _distance += _gameData.Speed * Time.fixedDeltaTime;
-        if (_distance >= _lastDistance + _gameSettings.spacing) 
+        _distance += _gameData.Speed * Time.deltaTime;
+        if (_distance >= _lastDistance + _gameSettings.spacing)
         {
             _lastDistance += _gameSettings.spacing;
+            _offset = (_lastDistance - _distance) * _gameData.Speed * Time.deltaTime;
             _pool.Get();
         }
     }
@@ -101,23 +103,28 @@ public class ObstacleSpawner : MonoBehaviour
     }
     private void OnGetPooledObject(IPooledObject obj)
     {
-        float right = _bounds.offset.x + _bounds.size.x * _half;
-        float top = _bounds.offset.y + _bounds.size.y * _half;
-        float bottom = _bounds.offset.y - _bounds.size.y * _half;
+        float right = _bounds.offset.x + _bounds.size.x * 0.5f;
+        float top = _bounds.offset.y + _bounds.size.y * 0.5f;
+        float bottom = _bounds.offset.y - _bounds.size.y * 0.5f;
         float spawnHeight = Mathf.CeilToInt(Random.Range(top, bottom));
 
-        Vector2 localPos = new Vector2(right, spawnHeight);
+        Vector2 localPos = new Vector2(right + _offset, spawnHeight);
+
+        var size = obj as ISize;
+        if (size != null)
+        {
+            int height = Random.Range(_minHeight, _maxHeight);
+            size.SetSize(new Vector2(_defaultWidth, height));
+            if (height % 2 != 0)
+            {
+                localPos += Vector2.down * 0.5f;
+            }
+        }
 
         var trajectory = obj as ITrajectory;
         trajectory.SetPosition(transform.position + transform.rotation * localPos);
         trajectory.SetRotation(transform.rotation);
         trajectory.SetDirection(Vector2.left);
-
-        var size = obj as ISize;
-        if (size != null)
-        {
-            size.SetSize(new Vector2(_defaultWidth, Random.Range(_minHeight, _maxHeight)));
-        }
 
         obj.OnPoolGet(_bounds.size.x / trajectory.Velocity.magnitude);
     }

@@ -6,7 +6,10 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "GameSettings", menuName = "GameSettings")]
 public class GameSettings : ScriptableObject
 {
-    public float speedChangeRate;
     public float spacing;
-    public List<int> difficulties;
+    public int difficulty;
+    public List<float> difficulties;
+    public float speedChangeRate;
+    public float playerStartSpeed;
+    public float speedChangeAmount;
 }

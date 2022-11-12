@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b1279ea6f0e6578468dccd80f18c1049, type: 3}
   m_Name: GameSettings
   m_EditorClassIdentifier: 
-  speedChangeRate: 0
-  spacing: 2
+  spacing: 5
   difficulties: 050000000a0000000f000000
+  speedChangeRate: 5
+  playerStartSpeed: 1
+  speedChangeAmount: 0.5

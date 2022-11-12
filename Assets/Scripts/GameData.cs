@@ -5,10 +5,11 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "GameData", menuName = "GameData")]
 public class GameData : ScriptableObject
 {
-    public float speedChangeRate;
+    public bool pause;
+    public float time;
     public event Action<float> OnSpeedChange;
     public float Speed {
-        get { return _speed; }
+        get { return pause ? 0f : _speed; }
         set
         {
             _speed = value;

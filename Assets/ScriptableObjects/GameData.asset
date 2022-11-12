@@ -12,5 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ffa62afe6a14ea147827e1543717f724, type: 3}
   m_Name: GameData
   m_EditorClassIdentifier: 
-  difficulty: 0
-  speed: 0
+  speedChangeRate: 0

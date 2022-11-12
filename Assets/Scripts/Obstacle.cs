@@ -8,10 +8,6 @@ using UnityEngine;
 [RequireComponent(typeof(BoxCollider2D))]
 public class Obstacle : MonoBehaviour, IPooledObject, ITrajectory, ISize
 {
-    [SerializeField] private SpriteRenderer _spriteRenderer;
-    [SerializeField] private BoxCollider2D _collider;
-
-
     public Vector3 Position => transform.position;
     public Quaternion Rotation => transform.rotation;
     public Vector3 Velocity => _direction * _speed;
@@ -19,29 +15,44 @@ public class Obstacle : MonoBehaviour, IPooledObject, ITrajectory, ISize
     public event Action<IPooledObject> OnRelease;
 
 
-    private float _deathTime;
+    private SpriteRenderer _spriteRenderer;
+    private BoxCollider2D _collider;
+
+    private float _deathTimer;
     private float _speed;
     private Vector3 _direction;
 
 
+    private void Awake()
+    {
+        _spriteRenderer = GetComponent<SpriteRenderer>();
+        _collider = GetComponent<BoxCollider2D>();
+    }
     private void Update()
     {
-        if (Time.time > _deathTime)
+        transform.position += transform.rotation * Velocity * Time.deltaTime;
+        _deathTimer -= Time.deltaTime;
+        if (_deathTimer <= 0f)
         {
             OnRelease?.Invoke(this);
         }
     }
-    private void FixedUpdate()
+    private void OnCollisionEnter2D(Collision2D collision)
     {
-        transform.position += transform.rotation * Velocity * Time.deltaTime;
+        if (collision.transform.TryGetComponent(out IPlayer player))
+        {
+            player.OnHit();
+        }
     }
+
+
     public IPooledObject Instantiate(Transform parent)
     {
         return Instantiate(this, parent);
     }
     public void OnPoolGet(float lifeTime)
     {
-        _deathTime = Time.time + lifeTime;
+        _deathTimer = lifeTime;
         gameObject.SetActive(true);
     }
     public void OnPoolRelease()
